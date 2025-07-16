@@ -1,13 +1,16 @@
+# Data Source: https://public.tableau.com/app/profile/federal.trade.commission/viz/FraudandIDTheftMaps/AllReportsbyState
+# US State Boundaries: https://public.opendatasoft.com/explore/dataset/us-state-boundaries/export/
+
 import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
-APP_TITLE = 'Peta Keuangan Provinsi di Indonesia'
-APP_SUB_TITLE = 'Integrasi Data BPS, DJPK, BIG dan sumber lainnya'
+APP_TITLE = 'Fraud and Identity Theft Report'
+APP_SUB_TITLE = 'Source: Federal Trade Commission'
 
 def display_time_filters(df):
-    year_list = list(df['tahun'].unique())
+    year_list = list(df['Year'].unique())
     year_list.sort()
     year = st.sidebar.selectbox('Year', year_list, len(year_list)-1)
     quarter = st.sidebar.radio('Quarter', [1, 2, 3, 4])
@@ -29,16 +32,16 @@ def display_map(df, year, quarter):
     map = folium.Map(location=[38, -96.5], zoom_start=4, scrollWheelZoom=False, tiles='CartoDB positron')
     
     choropleth = folium.Choropleth(
-        geo_data='data/indonesia_38_provinsi.geojson',
+        geo_data='data/us-state-boundaries.geojson',
         data=df,
-        columns=('Provinsi', 'value'),
-        key_on='feature.properties.kode_prov',
+        columns=('State Name', 'State Total Reports Quarter'),
+        key_on='feature.properties.name',
         line_opacity=0.8,
         highlight=True
     )
     choropleth.geojson.add_to(map)
 
-    df_indexed = df.set_index('kode_prov')
+    df_indexed = df.set_index('State Name')
     for feature in choropleth.geojson.data['features']:
         state_name = feature['properties']['name']
         feature['properties']['population'] = 'Population: ' + '{:,}'.format(df_indexed.loc[state_name, 'State Pop'][0]) if state_name in list(df_indexed.index) else ''
@@ -73,15 +76,15 @@ def main():
     st.caption(APP_SUB_TITLE)
 
     #Load Data
-    df_ipm = pd.read_csv('ipm-indonesia.csv')
-    df_pdrb = pd.read_csv('pdrb-indonesia.csv')
-    df_gini = pd.read_csv('gini-indonesia.csv')
-    df_populasi = pd.read_csv('populasi-indonesia.csv')
-    
+    df_continental = pd.read_csv('data/AxS-Continental_Full Data_data.csv')
+    df_fraud = pd.read_csv('data/AxS-Fraud Box_Full Data_data.csv')
+    df_median = pd.read_csv('data/AxS-Median Box_Full Data_data.csv')
+    df_loss = pd.read_csv('data/AxS-Losses Box_Full Data_data.csv')
+
     #Display Filters and Map
-    year, quarter = display_time_filters(df_ipm)
-    state_name = display_map(df_ipm, year)
-    state_name = display_state_filter(df_ipm, state_name)
+    year, quarter = display_time_filters(df_continental)
+    state_name = display_map(df_continental, year, quarter)
+    state_name = display_state_filter(df_continental, state_name)
     report_type = display_report_type_filter()
 
     #Display Metrics
