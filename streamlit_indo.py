@@ -29,7 +29,7 @@ def display_time_filters(df):
     year_list.sort()
     year = st.sidebar.selectbox('Tahun', year_list, len(year_list)-1)
     # quarter = st.sidebar.radio('Quarter', [1, 2, 3, 4])
-    st.header(f'{year}')
+    # st.header(f'{year}')
     return year
 
 def display_state_filter(df, state_name):
@@ -42,7 +42,14 @@ def display_state_filter(df, state_name):
 def display_report_type_filter():
     return st.sidebar.radio('Data', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=0)
 
+def display_data_filter():
+    return st.sidebar.radio('Data', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=0)
+    
+def display_axis_y_filter():
+    return st.sidebar.radio('Data Axis Y', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=1)
+    
 def display_map(df, year):
+    st.header(f'Peta IPM tahun {year}')
     df = df[(df['tahun'] == year)]
 
     # merged geojson and df
@@ -116,37 +123,37 @@ def display_map(df, year):
     state_name = ''
     if st_map['last_active_drawing']:
         state_name = st_map['last_active_drawing']['properties']['WADMPR']
+    # st.header(f'Data IPM {state_name} tahun {year}')
     return state_name
 
 def display_ranking(df, year, state_name=''):
+    st.header(f'Ranking IPM {state_name} tahun {year}')
     df = df[(df['tahun'] == year) & (df['kode_wilayah'].astype(str).str[-2:] == '00')].sort_values(by=['nilai'], ascending=False)
-    # df['color'] = '#fd0'
     
-    if state_name:
-        df.loc[(df['wilayah'] == state_name)]['color'] = '#f0f'
+    # mewarnai berbeda utk state_name
+    #if state_name:
+    #    df.loc[(df['wilayah'] == state_name)]
     df.reset_index(drop=True)
     bar_df = df.sort_values(by=['nilai'], ascending=False)
-    # https://discuss.streamlit.io/t/sort-the-bar-chart-in-descending-order/1037
-    #st.write(df)
     st.write(alt.Chart(bar_df).mark_bar().encode(
     x=alt.X('nilai'),
     y=alt.X('wilayah', sort=None)))
-    #bar_df.reset_index(drop=True)
-    #st.bar_chart(data=bar_df, x="wilayah", y="nilai", horizontal=True)
-    # st.bar_chart(data=bar_df, x="wilayah", y="nilai", color="color", horizontal=True)
-    table_df = bar_df[['wilayah', 'nilai', 'tahun']]
-    table_df = table_df.reset_index(drop=True)
-    st.table(table_df)
-
+    
 def display_trend(df, state_name):
-    indonesia_df = df[(df['kode_wilayah'] == 9999)].sort_values(by=['tahun'], ascending=True)
+    if state_name == '':
+        st.warning(f'Pilih daerah terlebih dahulu')    
+    tahun_awal = df['tahun'].min()
+    tahun_akhir = df['tahun'].max()
+    st.header(f'Trend IPM {state_name} tahun {tahun_awal}-{tahun_akhir}')
+    # indonesia_df = df[(df['kode_wilayah'] == 9999)].sort_values(by=['tahun'], ascending=True)
     df = df[(df['wilayah'] == state_name)].sort_values(by=['tahun'], ascending=True)
-    df['nilai_indonesia']=indonesia_df['nilai']
+    # df['nilai_indonesia']=indonesia_df['nilai']
     # df.sort_values(by=['nilai'], ascending=False)
+    # df.drop(df['judul_data'])
     df.reset_index(drop=True)
-    st.line_chart(data=df, x="tahun", y=["nilai", 'nilai_indonesia'])
+    st.line_chart(data=df, x="tahun", y="nilai")
     # st.bar_chart(data=df, x="wilayah", y="nilai", horizontal=True)
-    st.table(df)
+    # st.table(df)
 
 def display_scatterplot(df1, df2, state_name):
     df1 = df1[(df1['wilayah'] == state_name)].sort_values(by=['tahun'], ascending=True)
@@ -180,26 +187,27 @@ def main():
         'TKDD': 'data/tkdd-indonesia.csv',
     }
 
+    # Load Data awal dan menampilkan filter
+    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
+    year = display_time_filters(df_ipm)
+    state_name = display_map(df_ipm, year)
+    state_name = display_state_filter(df_ipm, state_name)
+    data = display_data_filter()
+    axis_y = display_axis_y_filter()
+    
     #Load Data
     # data = map_file.get(report_type) # report_type.get(mapping_file(), 'IPM')
     # df = pd.read_csv(data, index_col=None)
     df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
     df_pdrb = pd.read_csv('data/pdrb-indonesia.csv', index_col=None)
-    
+        
     # tab
-    tab1, tab2, tab3, tab4 = st.tabs(["maps", "charts", "trends", "scatter plot"])
+    tab1, tab2, tab3 = st.tabs(["charts", "trends", "scatter plot"])
     with tab1:
-        year = display_time_filters(df_ipm)
-        state_name = display_map(df_ipm, year)
-        state_name = display_state_filter(df_ipm, state_name)
-        report_type = display_report_type_filter()
-        # print('report_type:', report_type)
-        # print('map report_type:', report_type.get(map_file))
-    with tab2:
         display_ranking(df_ipm, year, state_name)
-    with tab3:
+    with tab2:
         display_trend(df_ipm, state_name)
-    with tab4:
+    with tab3:
         display_scatterplot(df_ipm, df_pdrb, state_name)
     
     #Display Filters and Map
@@ -207,6 +215,10 @@ def main():
     # state_name = display_map(df_ipm, year)
     
     # display_ranking(df_ipm, year)
+
+    #debug
+    st.warning(f'state_name: {state_name}, year: {year}, data: {data}, axis_y: {axis_y}')
+
     
 
     #Display Metrics
