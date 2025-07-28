@@ -187,31 +187,29 @@ def main():
     }
 
     # Load Data awal dan menampilkan filter
-    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
-    year = display_time_filters(df_ipm)
-    top_slider = st.sidebar.slider("Top Tooltip", 0, 9, 5) # gmn biar bisa 38 prov
-    state_name = display_map(df_ipm, year, top_slider)
-    state_name = display_state_filter(df_ipm, state_name)
-    data = display_data_filter()
+    data = display_data_filter()  
     axis_y = display_axis_y_filter()
+    top_slider = st.sidebar.slider("Top Tooltip", 0, 9, 5) # gmn biar bisa 38 prov
     # top_slider = display_top_slider(df_ipm)
-    
-    
-    
-    #Load Data
-    # data = map_file.get(report_type) # report_type.get(mapping_file(), 'IPM')
-    # df = pd.read_csv(data, index_col=None)
-    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
-    df_pdrb = pd.read_csv('data/pdrb-indonesia.csv', index_col=None)
+
+    if data == '':
+        df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
+        state_name = display_map(df_ipm, year, top_slider)
+        year = display_time_filters(df_ipm)
+    else:
+        filename = map_file.get(data)
+        df = pd.read_csv(filename, index_col=None)
+        year = display_time_filters(df)
+        state_name = display_map(df, year, top_slider)
         
     # tab
     tab1, tab2, tab3 = st.tabs(["charts", "trends", "scatter plot"])
     with tab1:
-        display_ranking(df_ipm, year, state_name)
+        display_ranking(df, year, state_name)
     with tab2:
-        display_trend(df_ipm, state_name)
+        display_trend(df, state_name)
     with tab3:
-        display_scatterplot(df_ipm, df_pdrb, state_name)
+        display_scatterplot(df, df_pdrb, state_name)
     
     #Display Filters and Map
     
