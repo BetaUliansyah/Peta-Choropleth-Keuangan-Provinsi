@@ -93,6 +93,7 @@ def display_map(df, year):
 
     # Menambahkan marker top 5
     top_5 = merged_df.loc[(merged_df['tahun'] == year)].sort_values(by=['nilai'], ascending=False).head(5)
+    top_5.to_crs("EPSG:4326")
     top_5["centroid"] = top_5.centroid
     for i in range(0,len(top_5)):
         # cari centroid dulu
@@ -160,8 +161,7 @@ def display_scatterplot(df1, df2, state_name):
     df2 = df2[(df2['wilayah'] == state_name)].sort_values(by=['tahun'], ascending=True)
     chart_data = df1.merge(df2, left_on='tahun', right_on='tahun', how='left')
     
-    st.scatter_chart(chart_data, x="wilayah_x", y=["nilai_x", "nilai_y"])
-    
+    st.scatter_chart(chart_data, x="wilayah_x", y=["nilai_x", "nilai_y"])  
     
 def display_facts(df, year, state_name, field, title, string_format='${:,}', is_median=False):
     df = df[(df['tahun'] == year)]
@@ -173,6 +173,19 @@ def display_facts(df, year, state_name, field, title, string_format='${:,}', is_
     else:
         total = df[field].sum()
     st.metric(title, string_format.format(round(total)))
+
+def display_all_df():
+    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
+    table_ipm = df_ipm.head(5)
+    st.table(table_ipm)
+    map_gpd = gpd.read_file('data/indonesia_38_provinsi.json')
+    columns_map = map_gpd.columns
+    st.write(columns_map)
+    table_map = map_gpd[['KDPPUM', 'WADMPR', 'kode_wilayah']]
+    st.table(table_map)
+    daerah_ipm = df_ipm.loc[(df_ipm['tahun'] == 2024) & (df_ipm['kode_wilayah'].astype(str).str[-2:] == '00')][['kode_wilayah', 'wilayah']]
+    st.table(daerah_ipm)
+    
 
 def main():
     st.set_page_config(APP_TITLE)
@@ -202,13 +215,15 @@ def main():
     df_pdrb = pd.read_csv('data/pdrb-indonesia.csv', index_col=None)
         
     # tab
-    tab1, tab2, tab3 = st.tabs(["charts", "trends", "scatter plot"])
+    tab1, tab2, tab3, tab4 = st.tabs(["charts", "trends", "scatter plot", "debug"])
     with tab1:
         display_ranking(df_ipm, year, state_name)
     with tab2:
         display_trend(df_ipm, state_name)
     with tab3:
         display_scatterplot(df_ipm, df_pdrb, state_name)
+    with tab4:
+        display_all_df()
     
     #Display Filters and Map
     
