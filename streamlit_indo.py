@@ -193,15 +193,15 @@ def main():
     # top_slider = display_top_slider(df_ipm)
 
     if data == '':
-        df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
-        state_name = display_map(df_ipm, year, top_slider)
-        year = display_time_filters(df_ipm)
+        df = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
+        
     else:
         filename = map_file.get(data)
         df = pd.read_csv(filename, index_col=None)
-        year = display_time_filters(df)
-        state_name = display_map(df, year, top_slider)
-        
+
+    year = display_time_filters(df)
+    state_name = display_map(df, year, top_slider)
+    
     # tab
     tab1, tab2, tab3 = st.tabs(["charts", "trends", "scatter plot"])
     with tab1:
