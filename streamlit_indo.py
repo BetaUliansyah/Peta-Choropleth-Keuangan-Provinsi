@@ -39,8 +39,8 @@ def display_state_filter(df, state_name):
     state_index = state_list.index(state_name) if state_name and state_name in state_list else 0
     return st.sidebar.selectbox('Provinsi', state_list, state_index)
 
-def display_report_type_filter():
-    return st.sidebar.radio('Data', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=0)
+def display_top_slider():
+    return True
 
 def display_data_filter():
     return st.sidebar.radio('Data', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=0)
@@ -48,7 +48,7 @@ def display_data_filter():
 def display_axis_y_filter():
     return st.sidebar.radio('Data Axis Y', ['IPM', 'PDRB', 'APBD', 'TKDD'], index=1)
     
-def display_map(df, year):
+def display_map(df, year, top_slider=5):
     st.header(f'Peta IPM tahun {year}')
     df = df[(df['tahun'] == year)]
 
@@ -96,12 +96,16 @@ def display_map(df, year):
     top_5.to_crs("EPSG:4326")
     top_5["centroid"] = top_5.centroid
     for i in range(0,len(top_5)):
+
+    top_df = merged_df.loc[(merged_df['tahun'] == year)].sort_values(by=['nilai'], ascending=False).head(top_slider)
+    top_df["centroid"] = top_df.centroid
+    for i in range(0,len(top_df)):
         # cari centroid dulu
-        lat = top_5.iloc[i]["centroid"].y
-        lon = top_5.iloc[i]["centroid"].x
+        lat = top_df.iloc[i]["centroid"].y
+        lon = top_df.iloc[i]["centroid"].x
 
     # https://python-graph-gallery.com/312-add-markers-on-folium-map/
-        popup_text = f"{top_5.iloc[i]['wilayah']}: {top_5.iloc[i]['nilai']}"
+        popup_text = f"{top_df.iloc[i]['wilayah']}: {top_df.iloc[i]['nilai']}"
         folium.Marker(
           location=[lat, lon],
           popup=popup_text,
@@ -123,8 +127,7 @@ def display_map(df, year):
 
     state_name = ''
     if st_map['last_active_drawing']:
-        state_name = st_map['last_active_drawing']['properties']['WADMPR']
-    # st.header(f'Data IPM {state_name} tahun {year}')
+        state_name = st_map['last_active_drawing']['properties']['wilayah']
     return state_name
 
 def display_ranking(df, year, state_name=''):
@@ -201,29 +204,28 @@ def main():
     }
 
     # Load Data awal dan menampilkan filter
-    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
-    year = display_time_filters(df_ipm)
-    state_name = display_map(df_ipm, year)
-    state_name = display_state_filter(df_ipm, state_name)
-    data = display_data_filter()
+    data = display_data_filter()  
     axis_y = display_axis_y_filter()
+    top_slider = st.sidebar.slider("Top Tooltip", 0, 9, 5) # gmn biar bisa 38 prov
+    # top_slider = display_top_slider(df_ipm)
+
     
-    #Load Data
-    # data = map_file.get(report_type) # report_type.get(mapping_file(), 'IPM')
-    # df = pd.read_csv(data, index_col=None)
-    df_ipm = pd.read_csv('data/ipm-indonesia.csv', index_col=None)
-    df_pdrb = pd.read_csv('data/pdrb-indonesia.csv', index_col=None)
-        
+    'IPM' if data == ''
+    filename = map_file.get(data)
+    df = pd.read_csv(filename, index_col=None)
+    year = display_time_filters(df)
+    state_name = display_map(df, year, top_slider)
+    
     # tab
     tab1, tab2, tab3, tab4 = st.tabs(["charts", "trends", "scatter plot", "debug"])
     with tab1:
-        display_ranking(df_ipm, year, state_name)
+        display_ranking(df, year, state_name)
     with tab2:
-        display_trend(df_ipm, state_name)
+        display_trend(df, state_name)
     with tab3:
         display_scatterplot(df_ipm, df_pdrb, state_name)
     with tab4:
-        display_all_df()
+        display_scatterplot(df, df_pdrb, state_name)
     
     #Display Filters and Map
     
@@ -233,12 +235,12 @@ def main():
 
     #debug
     st.warning(f'state_name: {state_name}, year: {year}, data: {data}, axis_y: {axis_y}')
-
+    
     
 
     #Display Metrics
     st.subheader(f'Data Provinsi {state_name}')
-
+    
     col1, col2, col3 = st.columns(3)
     with col1:
         display_facts(df_ipm, year, state_name, 'nilai', f'# of Reports', string_format='{:,}')
