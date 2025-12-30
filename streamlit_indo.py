@@ -54,7 +54,7 @@ def display_map(df, year, top_slider=5):
 
     # merged geojson and df
     # Ensure both DataFrames have the same data type for the merge key
-    map_gpd = gpd.read_file('data/indonesia_38_provinsi.json')
+    map_gpd = gpd.read_file('map/indonesia_38_provinsi_bps.geojson')
     map_gpd['kode_wilayah'] = map_gpd['kode_wilayah'].astype(str)
     df['kode_wilayah'] = df['kode_wilayah'].astype(str)
     df_subset_tahun = df.loc[(df['tahun'] == year)]
