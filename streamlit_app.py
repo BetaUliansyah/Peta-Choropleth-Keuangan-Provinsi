@@ -226,7 +226,6 @@ def main():
     filename = map_file.get(data)
     print(filename)
     df = pd.read_csv(filename, index_col=None)
-    st.warning(df.dtypes)
     year = display_time_filters(df)
     state_name = display_map(data, df, year, top_slider)
     
