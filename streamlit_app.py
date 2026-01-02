@@ -213,21 +213,26 @@ def main():
         'Pendapatan APBD': 'data/pendapatan-apbd-provinsi.csv',
         'Belanja APBD': 'data/belanja-apbd-provinsi.csv',
         'Pembiayaan APBD': 'data/pembiayaan-apbd-provinsi.csv',
+        'TKD': 'data/tkd-provinsi.csv',
+        'DAU': 'data/tkd-dau-provinsi.csv',
+        'DAK Fisik': 'data/tkd-dakfisik-provinsi.csv',
+        'DAK Nonfisik': 'data/tkd-daknonfisik-provinsi.csv',
+        'DBH': 'data/tkd-dbh-provinsi.csv',
+        'DAIS': 'data/tkd-dais-provinsi.csv',
+        'OTSUS': 'data/tkd-otsus-provinsi.csv',
+        'Insentif Fiskal': 'data/tkd-insentif-provinsi.csv',
+        'Transfer Hibah': 'data/tkd-hibah-provinsi.csv',
         'IPM': 'data/ipm-indonesia.csv',
         'PDRB': 'data/pdrb-indonesia.csv',
-        'APBD': 'data/apbd-indonesia.csv',
-        'TKDD': 'data/tkdd-indonesia.csv',
         'Gini Rasio': 'data/gini-rasio-provinsi.csv',
     }
 
     # Load Data awal dan menampilkan filter
     data = display_data_filter()  
-    axis_y = display_axis_y_filter()
+    # axis_y = display_axis_y_filter()
     top_slider = st.sidebar.slider("Top Tooltip", 0, 9, 5) # gmn biar bisa 38 prov
     # top_slider = display_top_slider(df_ipm)
 
-    
-    # 'IPM' if data == ''
     filename = map_file.get(data)
     print(filename)
     df = pd.read_csv(filename, index_col=None)
