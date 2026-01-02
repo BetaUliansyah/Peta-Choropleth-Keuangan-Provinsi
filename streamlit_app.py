@@ -14,7 +14,7 @@ import altair as alt
 
 APP_TITLE = 'Peta Keuangan Provinsi'
 APP_SUB_TITLE = 'Data BPS, DJPK dan BIG'
-data_list = ['Pendapatan APBD', 'Belanja APBD', 'Pembiayaan APBD', 'TKD', 'DAU', 'DAK Fisik', 'DAK Nonfisik', 'IPM', 'PDRB', 'Gini Rasio']
+data_list = ['Pendapatan APBD', 'Belanja APBD', 'Pembiayaan APBD', 'TKD', 'DAU', 'DAK Fisik', 'DAK Nonfisik', 'DBH', 'DAIS', 'OTSUS', 'Insentif Fiskal', 'Transfer Hibah', 'IPM', 'PDRB', 'Gini Rasio']
 
 
 def mapping_file():
@@ -23,9 +23,14 @@ def mapping_file():
         'Belanja APBD': 'data/belanja-apbd-provinsi.csv',
         'Pembiayaan APBD': 'data/pembiayaan-apbd-provinsi.csv',
         'TKD': 'data/tkd-provinsi.csv',
-        'DAU': 'data/dau-provinsi.csv',
-        'DAK Fisik': 'data/dakf-provinsi.csv',
-        'DAK Nonfisik': 'data/daknf-provinsi.csv',
+        'DAU': 'data/tkd-dau-provinsi.csv',
+        'DAK Fisik': 'data/tkd-dakfisik-provinsi.csv',
+        'DAK Nonfisik': 'data/tkd-daknonfisik-provinsi.csv',
+        'DBH': 'data/tkd-dbh-provinsi.csv',
+        'DAIS': 'data/tkd-dais-provinsi.csv',
+        'OTSUS': 'data/tkd-otsus-provinsi.csv',
+        'Insentif Fiskal': 'data/tkd-insentif-provinsi.csv',
+        'Transfer Hibah': 'data/tkd-hibah-provinsi.csv',
         'IPM': 'data/ipm-indonesia.csv',
         'PDRB': 'data/pdrb-indonesia.csv',
         'Gini Rasio': 'data/gini-rasio-provinsi.csv',
