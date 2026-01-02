@@ -32,7 +32,7 @@ def mapping_file():
         'Insentif Fiskal': 'data/tkd-insentif-provinsi.csv',
         'Transfer Hibah': 'data/tkd-hibah-provinsi.csv',
         'IPM': 'data/ipm-indonesia.csv',
-        'PDRB': 'data/pdrb-indonesia.csv',
+        'PDRB': 'data/pdrb-provinsi.csv',
         'Gini Rasio': 'data/gini-rasio-provinsi.csv',
     }
     return map_dict
@@ -223,7 +223,7 @@ def main():
         'Insentif Fiskal': 'data/tkd-insentif-provinsi.csv',
         'Transfer Hibah': 'data/tkd-hibah-provinsi.csv',
         'IPM': 'data/ipm-indonesia.csv',
-        'PDRB': 'data/pdrb-indonesia.csv',
+        'PDRB': 'data/pdrb-provinsi.csv',
         'Gini Rasio': 'data/gini-rasio-provinsi.csv',
     }
 
