@@ -257,8 +257,8 @@ def main():
     # display_ranking(df_ipm, year)
 
     #debug
-    st.warning(f'state_name: {state_name}, year: {year}, data: {data}, axis_y: {axis_y}')
-    
+    # st.warning(f'state_name: {state_name}, year: {year}, data: {data}, axis_y: {axis_y}')
+    st.warning(f'state_name: {state_name}, year: {year}, data: {data}') # tanpa axis_y
     
 
     #Display Metrics
